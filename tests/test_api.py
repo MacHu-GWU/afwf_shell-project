@@ -5,6 +5,10 @@ from afwf_shell import api
 
 def test():
     _ = api
+    _ = api.Item
+    _ = api.UI
+    _ = api.debugger
+    _ = api.exc
 
 
 if __name__ == "__main__":
