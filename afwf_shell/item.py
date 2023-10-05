@@ -39,5 +39,23 @@ class Item:
         """
         pass
 
+    def ctrl_a_handler(self):
+        """
+        This is the abstract method that when you hit Ctrl + A on this item.
+        """
+        pass
+
+    def ctrl_w_handler(self):
+        """
+        This is the abstract method that when you hit Ctrl + W on this item.
+        """
+        pass
+
+    def ctrl_p_handler(self):
+        """
+        This is the abstract method that when you hit Ctrl + P on this item.
+        """
+        pass
+
 
 T_ITEM = T.TypeVar("T_ITEM", bound=Item)

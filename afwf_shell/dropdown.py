@@ -31,11 +31,24 @@ class Dropdown:
         self.cursor_position: int = 0
         self._show_items_limit = min(SHOW_ITEMS_LIMIT, self.n_items)
 
+    def update(self, items: T.List[T_ITEM]):
+        self.items = items
+        self.n_items = len(items)
+        self.selected_item_index = 0
+        self.cursor_position = 0
+        self._show_items_limit = min(SHOW_ITEMS_LIMIT, self.n_items)
+
+    @property
+    def selected_item(self) -> T_ITEM:
+        return self.items[self.selected_item_index]
+
     def _press_down(self):
+        # already the last item
         if self.selected_item_index == self.n_items - 1:
             pass
         else:
             self.selected_item_index += 1
+        # already the last item in the UI
         if self.cursor_position == self._show_items_limit - 1:
             pass
         else:

@@ -5,8 +5,10 @@ import readchar
 
 from . import exc
 from . import events
-from .item import Item
-from .render import ConsoleRender
+from .item import T_ITEM
+from .line_editor import LineEditor
+from .dropdown import Dropdown
+from .render import UIRender
 from .debug import debugger
 
 
@@ -19,20 +21,16 @@ class UI:
 
     def __init__(
         self,
-        handler: T.Callable[[str], T.List[Item]],
+        handler: T.Callable[[str], T.List[T_ITEM]],
     ):
         self.handler = handler
-        self.render = ConsoleRender()
-
-        # --- query related ---
+        self.render = UIRender()
         self.event_generator = events.KeyEventGenerator()
-        self.query_chars = []
-        self.query_cursor_offset = 0
 
         # --- items related ---
-        self.items: T.List[Item]
-        self.items_mapper: T.Dict[str, "Item"]
-        self.selected_item_index: int
+        self.line_editor: LineEditor = LineEditor()
+        self.dropdown: Dropdown = Dropdown([])
+        self.n_items_on_screen: int = 0
 
         # --- controller flags ---
         self.need_clear_query = True
@@ -41,129 +39,146 @@ class UI:
         self.need_print_items = True
         self.need_run_handler = True
 
-    @property
-    def query(self) -> str:
-        return "".join(self.query_chars)
-
     def clear_query(self):
         """
         Clear the ``[Query]: {user_query}`` line
         """
         if self.need_clear_query:
-            if self.render._position == 1:
+            if self.render._line_number == 1:
                 self.render.clear_n_lines(n=1)
         self.need_clear_query = True
 
     def clear_items(self):
         """
-        Clear the item drop down menu.
+        Clear the item dropdown menu.
         """
         if self.need_clear_items:
-            if self.render._position > 1:
-                self.render.clear_n_lines(n=self.render._position - 1)
+            if self.render._line_number > 1:
+                self.render.clear_n_lines(n=self.render._line_number - 1)
         self.need_clear_items = True
 
     def print_query(self):
         if self.need_print_query:
-            self.render.print_line(
-                str_tpl="{color}[Query]: {terminal.normal}{query}",
-                color=self.render.terminal.blue,
-                query=self.query,
-                terminal=self.render.terminal,
-            )
+            self.render.print_line_editor(self.line_editor)
         self.need_print_query = True
 
     def print_items(self):
         if self.need_print_items:
             if self.need_run_handler:
-                self.items = self.handler(self.query)
-                self.items_mapper = {item.uid: item for item in self.items}
-                self.selected_item_index = 0
-                if self.items:
-                    self.items[self.selected_item_index].selected = True
-            self.render.print_items(self.items)
+                items = self.handler(self.line_editor.line)
+                self.dropdown.update(items)
+            n_items_on_screen = self.render.print_dropdown(self.dropdown)
+            self.n_items_on_screen = n_items_on_screen
+        self.render.move_cursor_to_line_editor(self.line_editor)
         self.need_print_items = True
         self.need_run_handler = True
 
     def process_key_pressed_input(self, pressed: str):
-        debugger.log(f"pressed: {pressed}")
+        debugger.log(f"pressed: {[pressed]} {[readchar.key.CTRL_J]}")
         if pressed == readchar.key.CTRL_C:
             raise KeyboardInterrupt()
 
         if pressed == readchar.key.TAB:
-            item = self.items[self.selected_item_index]
-            if item.autocomplete:
-                self.query_chars = list(item.autocomplete)
-
-        if pressed == readchar.key.UP:
-            self.need_clear_query = False
-            self.need_print_query = False
-            if len(self.items) == 0 or self.selected_item_index == 0:
-                self.need_clear_items = False
-                self.need_print_items = False
-            else:
-                self.need_run_handler = False
-                self.items[self.selected_item_index].selected = False
-                self.selected_item_index -= 1
-                self.items[self.selected_item_index].selected = True
+            self.line_editor.clear_line()
+            selected_item = self.dropdown.selected_item
+            if selected_item.autocomplete:
+                self.line_editor.enter_text(selected_item.autocomplete)
             return
 
-        if pressed == readchar.key.DOWN:
+        if pressed in (
+            readchar.key.UP,
+            readchar.key.DOWN,
+            readchar.key.CTRL_U,
+            readchar.key.CTRL_K,
+        ):
             self.need_clear_query = False
             self.need_print_query = False
-            if len(self.items) == 0 or self.selected_item_index == len(self.items) - 1:
-                self.need_clear_items = False
-                self.need_print_items = False
-            else:
-                self.need_run_handler = False
-                self.items[self.selected_item_index].selected = False
-                self.selected_item_index += 1
-                self.items[self.selected_item_index].selected = True
+            self.need_run_handler = False
+            if pressed in (readchar.key.UP, readchar.key.CTRL_K):
+                self.dropdown.press_up()
+            if pressed in (readchar.key.DOWN, readchar.key.CTRL_U):
+                self.dropdown.press_down()
             return
 
         if pressed in (
             readchar.key.LEFT,
             readchar.key.RIGHT,
+            readchar.key.HOME,
+            readchar.key.END,
+            readchar.key.CTRL_H,
+            readchar.key.CTRL_L,
+            readchar.key.CTRL_B,
+            readchar.key.CTRL_E,
         ):
             self.need_clear_query = False
             self.need_clear_items = False
             self.need_print_query = False
             self.need_print_items = False
+            self.need_run_handler = False
+            if pressed in (readchar.key.LEFT, readchar.key.CTRL_H):
+                self.line_editor.press_left()
+            elif pressed in (readchar.key.RIGHT, readchar.key.CTRL_L):
+                self.line_editor.press_right()
+            elif pressed == readchar.key.HOME:
+                self.line_editor.press_home()
+            elif pressed == readchar.key.END:
+                self.line_editor.press_end()
+            elif pressed == readchar.key.CTRL_B:
+                self.line_editor.move_word_backward()
+            elif pressed == readchar.key.CTRL_E:
+                self.line_editor.move_word_forward()
+            else:  # pragma: no cover
+                raise NotImplementedError
             return
 
         if pressed == readchar.key.BACKSPACE:
-            if self.query_cursor_offset == 0:
-                pass
-            elif self.query_cursor_offset == len(self.query_chars):
-                self.query_chars.pop()
-                self.query_cursor_offset -= 1
-            else:
-                self.query_chars.pop(self.query_cursor_offset)
-                self.query_cursor_offset -= 1
+            self.line_editor.press_backspace()
             return
 
-        if pressed in (readchar.key.ENTER, readchar.key.CR, readchar.key.LF):
-            if len(self.items) == 0:
+        if pressed == readchar.key.DELETE:
+            self.line_editor.press_delete()
+            return
+
+        if pressed in (
+            readchar.key.ENTER,
+            readchar.key.CR,
+            readchar.key.LF,
+            readchar.key.CTRL_A,
+            readchar.key.CTRL_W,
+            readchar.key.CTRL_P,
+        ):
+            if self.dropdown.n_items == 0:
                 raise exc.EndOfInputError(
                     selection="select nothing",
                 )
             else:
-                self.items[self.selected_item_index].enter_handler()
-                raise exc.EndOfInputError(
-                    selection=self.items[self.selected_item_index]
-                )
+                self.move_to_end()
+                selected_item = self.dropdown.selected_item
+                if pressed in (
+                    readchar.key.ENTER,
+                    readchar.key.CR,
+                    readchar.key.LF,
+                ):
+                    selected_item.enter_handler()
+                elif pressed == readchar.key.CTRL_A:
+                    selected_item.ctrl_a_handler()
+                elif pressed == readchar.key.CTRL_W:
+                    selected_item.ctrl_w_handler()
+                elif pressed == readchar.key.CTRL_P:
+                    selected_item.ctrl_p_handler()
+                else: # pragma: no cover
+                    raise NotImplementedError
+                raise exc.EndOfInputError(selection=selected_item)
 
-        if self.query_cursor_offset == len(self.query_chars):
-            self.query_chars.append(pressed)
-            self.query_cursor_offset += 1
-        else:
-            self.query_chars.insert(self.query_cursor_offset, pressed)
-            self.query_cursor_offset += 1
+        self.line_editor.press_key(pressed)
 
     def process_input(self):
         event = self.event_generator.next()
         if isinstance(event, events.KeyPressedEvent):
             self.process_key_pressed_input(pressed=event.value)
+
+    def move_to_end(self):
+        self.render.move_to_end(n_items=self.n_items_on_screen)
 
     def _event_loop(self):
         try:
@@ -179,6 +194,8 @@ class UI:
                 self.print_items()
                 debugger.log("--- process_input ---")
                 self.process_input()
+                debugger.log("--- move_to_end ---")
+                self.move_to_end()
         except exc.EndOfInputError as e:
             return e.selection
 

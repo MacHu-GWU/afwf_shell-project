@@ -74,8 +74,17 @@ class Render:
         把光标移动到初始位置. 本质上是把光标向上回退移动到第一行, 然后再用回车符把光标移动到本行初始位置.
         """
         print(self._line_number * self.terminal.move_up, end="")
-        self._force_initial_column()
+        print("\r", end="")
+        sys.stdout.flush()
         self._line_number = 0
+
+    def move_down(self, n: int):
+        """
+        把光标移动到初始位置. 本质上是把光标向上回退移动到第一行, 然后再用回车符把光标移动到本行初始位置.
+        """
+        print(n * self.terminal.move_down, end="")
+        sys.stdout.flush()
+        self._line_number += n
 
     def clear_n_lines(self, n: int):
         """
@@ -192,15 +201,18 @@ class UIRender(Render):
         n_item = len(menu)
         return n_item
 
+    def move_cursor_to_line_editor(self, line_editor: LineEditor):
+        self.move_to_start()
+        n = 9 + line_editor.cursor_position
+        self.print_str(self.terminal.move_right(n), end="")
+
     def print_ui(self, line_editor: LineEditor, dropdown: Dropdown) -> int:
         """
         Render the entire UI, and move the cursor to the right position.
         """
         self.print_line_editor(line_editor)
         n_items = self.print_dropdown(dropdown)
-        self.move_to_start()
-        n = 9 + line_editor.cursor_position
-        self.print_str(self.terminal.move_right(n), end="")
+        self.move_cursor_to_line_editor(line_editor)
         return n_items
 
     def move_to_end(self, n_items: int):
@@ -209,3 +221,4 @@ class UIRender(Render):
         """
         move_down_n_lines = n_items * 2 + 1 - self._line_number
         self.print_str(move_down_n_lines * self.terminal.move_down, end="")
+        self._line_number += move_down_n_lines
