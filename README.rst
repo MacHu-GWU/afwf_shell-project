@@ -50,7 +50,7 @@
 
 Welcome to ``afwf_shell`` Documentation
 ==============================================================================
-``afwf_shell`` is a framework for building Alfred Workflow liked App in terminal.
+``afwf_shell`` is a framework for building Alfred Workflow liked App in terminal. See example at `ui_example.py <https://github.com/MacHu-GWU/afwf_shell-project/blob/main/examples/ui_example.py>`_.
 
 
 .. _install:
