@@ -23,7 +23,6 @@ class Item:
     subtitle: T.Optional[str] = dataclasses.field(default=None)
     arg: T.Optional[str] = dataclasses.field(default=None)
     autocomplete: T.Optional[str] = dataclasses.field(default=None)
-    selected: bool = dataclasses.field(default=False)
     variables: T.Dict[str, T.Any] = dataclasses.field(default_factory=dict)
 
     @property
@@ -39,3 +38,6 @@ class Item:
         This is the abstract method that when you hit Enter on this item.
         """
         pass
+
+
+T_ITEM = T.TypeVar("T_ITEM", bound=Item)

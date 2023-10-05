@@ -21,4 +21,9 @@ dir_htmlcov = dir_project_root / "htmlcov"
 path_cov_index_html = dir_htmlcov / "index.html"
 dir_unit_test = dir_project_root / "tests"
 
-path_log_txt = dir_project_root / "log.txt"
+
+# ------------------------------------------------------------------------------
+# afwf_shell
+# ------------------------------------------------------------------------------
+dir_home = Path.home()
+path_log_txt = dir_home / ".afwf_shell-log.txt"
