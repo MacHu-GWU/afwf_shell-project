@@ -49,6 +49,10 @@ def _test_press_left():
     assert le.line == "alie"
     assert le.value == "al"
 
+    le.press_key("X")
+    assert le.line == "alXie"
+    assert le.value == "alX"
+
 
 def _test_press_home():
     le = LineEditor()
@@ -151,7 +155,87 @@ def _test_clear_forward():
     assert le.value == "al"
 
 
+def _test_move_word():
+    le = LineEditor()
+    text = " hello world alice bob "
+
+    # --- move backward
+    le.replace_text(text)
+    le.move_word_backward()
+    assert le.line == text
+    assert le.value == " hello world alice "
+
+    le.replace_text(text)
+    le.press_left(1)
+    le.move_word_backward()
+    assert le.line == text
+    assert le.value == " hello world alice "
+
+    le.replace_text(text)
+    le.press_left(2)
+    le.move_word_backward()
+    assert le.line == text
+    assert le.value == " hello world alice "
+
+    le.replace_text(text)
+    le.press_left(7)
+    le.move_word_backward()
+    assert le.line == text
+    assert le.value == " hello world "
+
+    le.replace_text(text)
+    le.move_to_start()
+    le.move_word_backward()
+    assert le.line == text
+    assert le.value == ""
+
+    le.replace_text("    ")
+    le.move_word_backward()
+    assert le.line == "    "
+    assert le.value == ""
+
+    # --- move forward
+    le.replace_text(text)
+    le.move_to_start()
+    le.move_word_forward()
+    assert le.line == text
+    assert le.value == " hello"
+
+    le.replace_text(text)
+    le.move_to_start()
+    le.press_right(1)
+    le.move_word_forward()
+    assert le.line == text
+    assert le.value == " hello"
+
+    le.replace_text(text)
+    le.move_to_start()
+    le.press_right(2)
+    le.move_word_forward()
+    assert le.line == text
+    assert le.value == " hello"
+
+    le.replace_text(text)
+    le.move_to_start()
+    le.press_right(7)
+    le.move_word_forward()
+    assert le.line == text
+    assert le.value == " hello world"
+
+    le.replace_text(text)
+    le.move_to_end()
+    le.move_word_forward()
+    assert le.line == text
+    assert le.value == text
+
+    le.replace_text("    ")
+    le.move_word_forward()
+    assert le.line == "    "
+    assert le.value == "    "
+
+
 def test():
+    print("")
     _test_press_key()
     _test_enter_text()
     _test_press_backspace()
@@ -163,6 +247,7 @@ def test():
     _test_clear_line()
     _test_clear_backward()
     _test_clear_forward()
+    _test_move_word()
 
 
 if __name__ == "__main__":
