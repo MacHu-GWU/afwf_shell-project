@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from afwf_shell.render import Render
+
+# -*- coding: utf-8 -*-
+
 import time
 import dataclasses
 from fuzzywuzzy import process
@@ -128,10 +132,15 @@ def example5():
     time.sleep(1)
 
 
-if __name__ == "__main__":
-    # example1()
-    # example2()
-    # example3()
-    # example4()
+def test():
+    example1()
+    example2()
+    example3()
+    example4()
     example5()
-    pass
+
+
+if __name__ == "__main__":
+    from afwf_shell.tests import run_cov_test
+
+    run_cov_test(__file__, "afwf_shell.render", preview=False)

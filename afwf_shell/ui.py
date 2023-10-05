@@ -166,7 +166,7 @@ class UI:
                     selected_item.ctrl_w_handler()
                 elif pressed == readchar.key.CTRL_P:
                     selected_item.ctrl_p_handler()
-                else: # pragma: no cover
+                else:  # pragma: no cover
                     raise NotImplementedError
                 raise exc.EndOfInputError(selection=selected_item)
 
