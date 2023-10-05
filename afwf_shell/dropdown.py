@@ -10,7 +10,7 @@ from .constants import SHOW_ITEMS_LIMIT, SCROLL_SPEED
 from .item import T_ITEM
 
 
-class DropDown:
+class Dropdown:
     """
     Simulate a item dropdown menu. User can move cursor up and down and scroll
     up and down the list, hit enter to perform action on the selected item.

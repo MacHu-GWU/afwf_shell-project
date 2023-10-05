@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from afwf_shell.dropdown import DropDown
+from afwf_shell.dropdown import Dropdown
 
 
 def get_items(menu) -> str:
@@ -14,7 +14,7 @@ def get_selected_item(menu) -> str:
 
 
 def _test_high_amount_of_items():
-    dd = DropDown(items=list("abcdefghijklmnopqrstuvwxyz"))
+    dd = Dropdown(items=list("abcdefghijklmnopqrstuvwxyz"))
     assert dd.selected_item_index == 0
     assert dd.cursor_position == 0
 
@@ -96,7 +96,7 @@ def _test_high_amount_of_items():
 
 
 def _test_low_amount_of_items():
-    dd = DropDown(items=list("abc"))
+    dd = Dropdown(items=list("abc"))
     assert dd.selected_item_index == 0
     assert dd.cursor_position == 0
 
@@ -170,7 +170,7 @@ def _test_low_amount_of_items():
 
 
 def _test_press_up_and_down():
-    dd = DropDown(items=list("abc"))
+    dd = Dropdown(items=list("abc"))
     dd._press_up()
     assert dd.selected_item_index == 0
     assert dd.cursor_position == 0
