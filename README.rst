@@ -1,5 +1,5 @@
 
-.. image:: https://readthedocs.org/projects/afwf-shell/badge/?version=latest
+.. .. image:: https://readthedocs.org/projects/afwf-shell/badge/?version=latest
     :target: https://afwf-shell.readthedocs.io/en/latest/
     :alt: Documentation Status
 
@@ -26,10 +26,10 @@
 
 ------
 
-.. image:: https://img.shields.io/badge/Link-Document-blue.svg
+.. .. image:: https://img.shields.io/badge/Link-Document-blue.svg
     :target: https://afwf-shell.readthedocs.io/en/latest/
 
-.. image:: https://img.shields.io/badge/Link-API-blue.svg
+.. .. image:: https://img.shields.io/badge/Link-API-blue.svg
     :target: https://afwf-shell.readthedocs.io/en/latest/py-modindex.html
 
 .. image:: https://img.shields.io/badge/Link-Install-blue.svg
@@ -50,7 +50,7 @@
 
 Welcome to ``afwf_shell`` Documentation
 ==============================================================================
-Documentation for ``afwf_shell``.
+``afwf_shell`` is a framework for building Alfred Workflow liked App in terminal.
 
 
 .. _install:
