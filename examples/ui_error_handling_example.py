@@ -47,7 +47,7 @@ def get_items():
         MyItem(
             uid=f"id-{str(ith).zfill(2)}",
             title=zen,
-            subtitle=f"subtitle {str(ith).zfill(2)}: https://www.google.com",
+            subtitle=f"subtitle {str(ith).zfill(2)}",
             autocomplete=zen,
             arg=zen,
         )
@@ -59,10 +59,13 @@ def get_items():
 def handler(query: str):
     items = get_items()
     if query:
-        mapper = {item.title: item for item in items}
-        title_list = list(mapper.keys())
-        result = process.extract(query, title_list, limit=len(items))
-        return [mapper[title] for title, score in result]
+        if len(query) >= 3:
+            raise ValueError("Hello World")
+        else:
+            mapper = {item.title: item for item in items}
+            title_list = list(mapper.keys())
+            result = process.extract(query, title_list, limit=len(items))
+            return [mapper[title] for title, score in result]
     else:
         return items
 

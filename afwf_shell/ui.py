@@ -16,7 +16,8 @@ class UI:
     """
     Alfred Workflow UI simulator.
 
-    :param handler:
+    :param handler: a callable function that takes a query string as input and
+        returns a list of items.
     """
 
     def __init__(
@@ -74,6 +75,34 @@ class UI:
         self.need_run_handler = True
 
     def process_key_pressed_input(self, pressed: str):
+        """
+        Process user keyboard input.
+
+        - UP: move up
+        - DOWN: move down
+        - LEFT: move left
+        - RIGHT: move right
+        - HOME: move to start of the line
+        - END: move to end of the line
+
+        - CTRL + E: move up
+        - CTRL + D: move down
+        - CTRL + R: scroll up
+        - CTRL + F: scroll down
+        - CTRL + H: move left
+        - CTRL + L: move right
+        - CTRL + G: move word left
+        - CTRL + K: move word right
+
+        - CTRL + X: clear input
+
+        Actions:
+
+        - Enter:
+        - CTRL + A:
+        - CTRL + W:
+        - CTRL + P:
+        """
         debugger.log(f"pressed: {[pressed]} {[readchar.key.CTRL_J]}")
         if pressed == readchar.key.CTRL_C:
             raise KeyboardInterrupt()
@@ -85,19 +114,32 @@ class UI:
                 self.line_editor.enter_text(selected_item.autocomplete)
             return
 
+        if pressed == readchar.key.CTRL_X:
+            self.line_editor.clear_line()
+            return
+
         if pressed in (
             readchar.key.UP,
             readchar.key.DOWN,
-            readchar.key.CTRL_U,
-            readchar.key.CTRL_K,
+            readchar.key.CTRL_E,
+            readchar.key.CTRL_D,
+            readchar.key.CTRL_R,
+            readchar.key.CTRL_F,
         ):
             self.need_clear_query = False
             self.need_print_query = False
             self.need_run_handler = False
-            if pressed in (readchar.key.UP, readchar.key.CTRL_K):
+
+            if pressed in (readchar.key.UP, readchar.key.CTRL_E):
                 self.dropdown.press_up()
-            if pressed in (readchar.key.DOWN, readchar.key.CTRL_U):
+            elif pressed in (readchar.key.DOWN, readchar.key.CTRL_D):
                 self.dropdown.press_down()
+            elif pressed == readchar.key.CTRL_R:
+                self.dropdown.scroll_up()
+            elif pressed == readchar.key.CTRL_F:
+                self.dropdown.scroll_down()
+            else:  # pragma: no cover
+                raise NotImplementedError
             return
 
         if pressed in (
@@ -107,8 +149,8 @@ class UI:
             readchar.key.END,
             readchar.key.CTRL_H,
             readchar.key.CTRL_L,
-            readchar.key.CTRL_B,
-            readchar.key.CTRL_E,
+            readchar.key.CTRL_G,
+            readchar.key.CTRL_K,
         ):
             self.need_clear_query = False
             self.need_clear_items = False
@@ -123,9 +165,9 @@ class UI:
                 self.line_editor.press_home()
             elif pressed == readchar.key.END:
                 self.line_editor.press_end()
-            elif pressed == readchar.key.CTRL_B:
+            elif pressed == readchar.key.CTRL_G:
                 self.line_editor.move_word_backward()
-            elif pressed == readchar.key.CTRL_E:
+            elif pressed == readchar.key.CTRL_K:
                 self.line_editor.move_word_forward()
             else:  # pragma: no cover
                 raise NotImplementedError
@@ -198,6 +240,9 @@ class UI:
                 self.move_to_end()
         except exc.EndOfInputError as e:
             return e.selection
+        except Exception as e:
+
+            raise e
 
     def run(self):
         try:
