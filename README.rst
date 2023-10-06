@@ -56,6 +56,12 @@ Demo:
 
 .. image:: https://github.com/MacHu-GWU/afwf_shell-project/assets/6800411/d242f01d-3921-42ba-a14c-c150a53514f6
 
+Examples:
+
+- `ui_example.py <https://github.com/MacHu-GWU/afwf_shell-project/blob/main/examples/ui_example.py>`_
+- `error_handling_example <https://github.com/MacHu-GWU/afwf_shell-project/blob/main/examples/error_handling_example.py>`_
+- `first_run_waiter_example.py <https://github.com/MacHu-GWU/afwf_shell-project/blob/main/examples/first_run_waiter_example.py>`_
+
 
 .. _install:
 
