@@ -19,7 +19,7 @@ x.y.z (Backlog)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Bugfixes**
 
-- Fix the BACKSPACE and CTRL + H key conflict issue on Windows.
+- Fix the BACSPACE and CTRL + H key conflict issue on Windows.
 - Fix the clear_items issue on Windows.
 
 
