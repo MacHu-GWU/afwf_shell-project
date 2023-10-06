@@ -244,7 +244,7 @@ class UI:
         - CTRL + P:
         """
         pressed_key_name = key_to_name.get(pressed, pressed)
-        debugger.log(f"pressed: {pressed_key_name}")
+        debugger.log(f"pressed: {pressed_key_name!r}, key code: {pressed!r}")
 
         if pressed == readchar.key.CTRL_C:
             raise KeyboardInterrupt()
@@ -284,12 +284,23 @@ class UI:
                 raise NotImplementedError
             return
 
+        # note: on windows terminal, the backspace and CTRL+H key code are the same
+        # we have to sacrifice the CTRL+H key to keep BACKSPACE working,
+        # so we put this code block before CTRL+H
+        if pressed == readchar.key.BACKSPACE:
+            self.line_editor.press_backspace()
+            return
+
+        if pressed == readchar.key.DELETE:
+            self.line_editor.press_delete()
+            return
+
         if pressed in (
             readchar.key.LEFT,
             readchar.key.RIGHT,
             readchar.key.HOME,
             readchar.key.END,
-            readchar.key.CTRL_H,
+            readchar.key.CTRL_H, # note, CTRL+H won't work on Windows
             readchar.key.CTRL_L,
             readchar.key.CTRL_G,
             readchar.key.CTRL_K,
@@ -313,14 +324,6 @@ class UI:
                 self.line_editor.move_word_forward()
             else:  # pragma: no cover
                 raise NotImplementedError
-            return
-
-        if pressed == readchar.key.BACKSPACE:
-            self.line_editor.press_backspace()
-            return
-
-        if pressed == readchar.key.DELETE:
-            self.line_editor.press_delete()
             return
 
         if pressed in (
