@@ -13,3 +13,7 @@ class EndOfInputError(Exception):
     ):
         super().__init__(*args)
         self.selection = selection
+
+
+class TerminalTooSmallError(SystemError):
+    pass

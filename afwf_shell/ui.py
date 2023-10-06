@@ -1,11 +1,17 @@
 # -*- coding: utf-8 -*-
 
+"""
+Alfred Workflow UI simulator.
+"""
+
 import typing as T
+import time
+
 import readchar
 
 from . import exc
 from . import events
-from .item import T_ITEM
+from .item import T_ITEM, Item
 from .line_editor import LineEditor
 from .dropdown import Dropdown
 from .render import UIRender
@@ -22,10 +28,11 @@ class UI:
 
     def __init__(
         self,
-        handler: T.Callable[[str], T.List[T_ITEM]],
+        handler: T.Callable[[str, T.Optional["UI"]], T.List[T_ITEM]],
+        capture_error: bool = True,
     ):
-        self.handler = handler
-        self.render = UIRender()
+        self.handler: T.Callable[[str, T.Optional["UI"]], T.List[T_ITEM]] = handler
+        self.render: UIRender = UIRender()
         self.event_generator = events.KeyEventGenerator()
 
         # --- items related ---
@@ -34,45 +41,146 @@ class UI:
         self.n_items_on_screen: int = 0
 
         # --- controller flags ---
-        self.need_clear_query = True
-        self.need_clear_items = True
-        self.need_print_query = True
-        self.need_print_items = True
-        self.need_run_handler = True
+        self.need_clear_query: bool = True
+        self.need_clear_items: bool = True
+        self.need_print_query: bool = True
+        self.need_print_items: bool = True
+        self.need_run_handler: bool = True
+        self.need_process_input: bool = True
+        self.need_move_to_end: bool = True
 
-    def clear_query(self):
+        self.capture_error: bool = capture_error
+
+    def _clear_query(self):
         """
         Clear the ``[Query]: {user_query}`` line
         """
-        if self.need_clear_query:
-            if self.render._line_number == 1:
-                self.render.clear_n_lines(n=1)
-        self.need_clear_query = True
+        if self.render._line_number == 1:
+            self.render.clear_n_lines(n=1)
+            debugger.log(f"cleared")
+        else:
+            debugger.log(f"nothing happen")
 
-    def clear_items(self):
+    def clear_query(self):
+        """
+        A wrapper of the ``_clear_query()`` method, ensures that the
+        ``need_clear_query`` flag is set to ``True`` at the end regardless of
+        whether an exception is raised.
+        """
+        debugger.log("--- clear_query ---")
+        try:
+            if self.need_clear_query:
+                self._clear_query()
+            else:
+                debugger.log(f"nothing happen")
+        finally:
+            self.need_clear_query = True
+
+    def _clear_items(self):
         """
         Clear the item dropdown menu.
         """
-        if self.need_clear_items:
-            if self.render._line_number > 1:
-                self.render.clear_n_lines(n=self.render._line_number - 1)
-        self.need_clear_items = True
+        if self.render._line_number > 1:
+            self.render.clear_n_lines(n=self.render._line_number - 1)
+            debugger.log(f"cleared")
+        else:
+            debugger.log(f"nothing happen")
+
+    def clear_items(self):
+        """
+        A wrapper of the ``_clear_items()`` method, ensures that the
+        ``need_clear_query`` flag is set to ``True`` at the end regardless of
+        whether an exception is raised.
+        """
+        debugger.log("--- clear_items ---")
+        try:
+            if self.need_clear_items:
+                self._clear_items()
+            else:
+                debugger.log(f"nothing happen")
+        finally:
+            self.need_clear_items = True
+
+    def _print_query(self):
+        """
+        Print the ``[Query]: {user_query}`` line
+        """
+        content = self.render.print_line_editor(self.line_editor)
+        debugger.log(f"printed: {content!r}")
 
     def print_query(self):
-        if self.need_print_query:
-            self.render.print_line_editor(self.line_editor)
-        self.need_print_query = True
+        """
+        A wrapper of the core logic for printint query, ensures that the
+        ``need_print_query`` flag is set to ``True`` at the end regardless of
+        whether an exception is raised.
+        """
+        debugger.log("--- print_query ---")
+        try:
+            if self.need_print_query:
+                self._print_query()
+            else:
+                debugger.log(f"nothing happen")
+        finally:
+            self.need_print_query = True
 
-    def print_items(self):
-        if self.need_print_items:
-            if self.need_run_handler:
-                items = self.handler(self.line_editor.line)
-                self.dropdown.update(items)
-            n_items_on_screen = self.render.print_dropdown(self.dropdown)
-            self.n_items_on_screen = n_items_on_screen
-        self.render.move_cursor_to_line_editor(self.line_editor)
-        self.need_print_items = True
-        self.need_run_handler = True
+    def _print_items(self, items: T.Optional[T.List[T_ITEM]] = None):
+        """
+        Core logic for printing items in the dropdown menu.
+
+        :param items: normally, this argument should be None, we will call the
+            handler function to get the items. If this is given, we will skip
+            the handler call.
+        """
+        if self.need_run_handler:
+            if items is None:
+                items = self.handler(self.line_editor.line, self)
+            self.dropdown.update(items)
+
+            # the current terminal height may not be able to fit all items
+            # so we may need to update the ``self.dropdown._show_items_limit``
+            # to fit the terminal height
+            terminal_height = self.render.terminal.height
+            if terminal_height <= 9:
+                raise exc.TerminalTooSmallError(
+                    "Terminal height is too small to render the UI! "
+                    "It has to have at least 8 lines."
+                )
+            terminal_items_limit = (terminal_height - 2) // 2
+            self.dropdown._show_items_limit = min(
+                self.dropdown._show_items_limit,
+                terminal_items_limit,
+            )
+
+        terminal_width = self.render.terminal.width
+        if terminal_width < 80:
+            raise exc.TerminalTooSmallError(
+                "Terminal width is too small to render the UI! "
+                "It has to have at least 80 ascii character wide."
+            )
+        n_items_on_screen = self.render.print_dropdown(self.dropdown, terminal_width)
+        self.n_items_on_screen = n_items_on_screen
+
+        debugger.log(f"move_cursor_to_line_editor ...")
+        debugger.log(f"_line_number: {self.render._line_number}")
+        n_vertical, n_horizontal = self.render.move_cursor_to_line_editor(
+            self.line_editor
+        )
+        debugger.log(f"n_vertical: {n_vertical}")
+        debugger.log(f"n_horizontal: {n_horizontal}")
+
+    def print_items(self, items: T.Optional[T.List[T_ITEM]] = None):
+        """
+        A wrapper of the core logic for printint items, ensures that the
+        ``need_print_items`` and ``need_run_handler`` flag is set to ``True``
+        at the end regardless of whether an exception is raised.
+        """
+        debugger.log("--- print_items ---")
+        try:
+            if self.need_print_items:
+                self._print_items(items=items)
+        finally:
+            self.need_print_items = True
+            self.need_run_handler = True
 
     def process_key_pressed_input(self, pressed: str):
         """
@@ -104,6 +212,7 @@ class UI:
         - CTRL + P:
         """
         debugger.log(f"pressed: {[pressed]} {[readchar.key.CTRL_J]}")
+
         if pressed == readchar.key.CTRL_C:
             raise KeyboardInterrupt()
 
@@ -214,38 +323,83 @@ class UI:
 
         self.line_editor.press_key(pressed)
 
-    def process_input(self):
+    def _process_input(self):
+        """
+        Core logic for processing input.
+        """
         event = self.event_generator.next()
         if isinstance(event, events.KeyPressedEvent):
             self.process_key_pressed_input(pressed=event.value)
 
-    def move_to_end(self):
-        self.render.move_to_end(n_items=self.n_items_on_screen)
+    def process_input(self):
+        """
+        A wrapper of the core logic for processing input, ensures that the
+        ``need_process_input`` flag is set to ``True`` at the end regardless of
+        whether an exception is raised.
+        """
+        debugger.log("--- process_input ---")
+        try:
+            if self.need_process_input:
+                self._process_input()
+        finally:
+            self.need_process_input = True
 
-    def _event_loop(self):
+    def move_to_end(self):
+        debugger.log("--- move_to_end ---")
+        try:
+            self.render.move_to_end(n_items=self.n_items_on_screen)
+        finally:
+            self.need_move_to_end = True
+
+    def event_loop(self):
         try:
             while True:
                 debugger.log("=== new loop start ===")
-                debugger.log("--- clear_items ---")
                 self.clear_items()
-                debugger.log("--- clear_query ---")
                 self.clear_query()
-                debugger.log("--- print_query ---")
                 self.print_query()
-                debugger.log("--- print_items ---")
                 self.print_items()
-                debugger.log("--- process_input ---")
                 self.process_input()
-                debugger.log("--- move_to_end ---")
                 self.move_to_end()
         except exc.EndOfInputError as e:
             return e.selection
         except Exception as e:
-
-            raise e
+            if self.capture_error:
+                # if we capture error, we call move_to_end() method to finish
+                # this loop, then run clear_items, clear_query, print_query,
+                # print_items in a sequence to show the error
+                # in the UI.
+                # Then wait for user input and enter another event loop to
+                # start over without exit.
+                self.move_to_end()
+                self.clear_items()
+                self.clear_query()
+                self.print_query()
+                selected_item = self.dropdown.selected_item
+                title = selected_item.title
+                if title.startswith("Error on item: "):
+                    title = title[len("Error on item: ") :]
+                processed_title = self.render._process_title(
+                    title,
+                    self.render.terminal.width - 15,
+                )
+                self.print_items(
+                    items=[
+                        Item(
+                            uid="uid",
+                            title=f"Error on item: {processed_title}",
+                            subtitle=f"{e!r}",
+                        )
+                    ]
+                )
+                self.process_input()
+                self.move_to_end()
+                return self.event_loop()
+            else:
+                raise e
 
     def run(self):
         try:
-            return self._event_loop()
+            return self.event_loop()
         finally:
             print("")
