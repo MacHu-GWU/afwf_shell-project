@@ -52,6 +52,10 @@ Welcome to ``afwf_shell`` Documentation
 ==============================================================================
 ``afwf_shell`` is a framework for building Alfred Workflow liked App in terminal. See example at `ui_example.py <https://github.com/MacHu-GWU/afwf_shell-project/blob/main/examples/ui_example.py>`_.
 
+Demo:
+
+.. image:: https://github.com/MacHu-GWU/afwf_shell-project/assets/6800411/d242f01d-3921-42ba-a14c-c150a53514f6
+
 
 .. _install:
 
