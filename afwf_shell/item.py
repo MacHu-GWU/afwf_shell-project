@@ -26,32 +26,32 @@ class Item:
     variables: T.Dict[str, T.Any] = dataclasses.field(default_factory=dict)
 
     @property
-    def title_text(self) -> str:
+    def title_text(self) -> str:  # pragma: no cover
         return self.title
 
     @property
-    def subtitle_text(self) -> str:
+    def subtitle_text(self) -> str:  # pragma: no cover
         return self.subtitle or ""
 
-    def enter_handler(self):
+    def enter_handler(self):  # pragma: no cover
         """
         This is the abstract method that when you hit Enter on this item.
         """
         pass
 
-    def ctrl_a_handler(self):
+    def ctrl_a_handler(self):  # pragma: no cover
         """
         This is the abstract method that when you hit Ctrl + A on this item.
         """
         pass
 
-    def ctrl_w_handler(self):
+    def ctrl_w_handler(self):  # pragma: no cover
         """
         This is the abstract method that when you hit Ctrl + W on this item.
         """
         pass
 
-    def ctrl_p_handler(self):
+    def ctrl_p_handler(self):  # pragma: no cover
         """
         This is the abstract method that when you hit Ctrl + P on this item.
         """

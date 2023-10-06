@@ -8,6 +8,9 @@ omit =
     afwf_shell/_version.py
     afwf_shell/cli.py
     afwf_shell/paths.py
+    afwf_shell/render.py
+    afwf_shell/ui.py
+    afwf_shell/debug.py
 
 [report]
 # Regexes for lines to exclude from consideration
