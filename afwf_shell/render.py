@@ -101,6 +101,7 @@ class Render:
         for _ in range(n):
             print(self.terminal.move_up, end="")
             print(self.terminal.clear_eol(), end="")
+            print(self.terminal.clear_bol(), end="")
         self._force_initial_column()
         self._line_number -= n
 
