@@ -5,7 +5,6 @@ Alfred Workflow UI simulator.
 """
 
 import typing as T
-import time
 
 import readchar
 
@@ -16,6 +15,35 @@ from .line_editor import LineEditor
 from .dropdown import Dropdown
 from .render import UIRender
 from .debug import debugger
+
+
+key_to_name = {
+    readchar.key.CTRL_C: "CTRL_C",
+    readchar.key.TAB: "TAB",
+    readchar.key.CTRL_X: "CTRL_X",
+    readchar.key.UP: "UP",
+    readchar.key.DOWN: "DOWN",
+    readchar.key.CTRL_E: "CTRL_E",
+    readchar.key.CTRL_D: "CTRL_D",
+    readchar.key.CTRL_R: "CTRL_R",
+    readchar.key.CTRL_F: "CTRL_F",
+    readchar.key.LEFT: "LEFT",
+    readchar.key.RIGHT: "RIGHT",
+    readchar.key.HOME: "HOME",
+    readchar.key.END: "END",
+    readchar.key.CTRL_H: "CTRL_H",
+    readchar.key.CTRL_L: "CTRL_L",
+    readchar.key.CTRL_G: "CTRL_G",
+    readchar.key.CTRL_K: "CTRL_K",
+    readchar.key.BACKSPACE: "BACKSPACE",
+    readchar.key.DELETE: "DELETE",
+    readchar.key.ENTER: "ENTER",
+    readchar.key.CR: "CR",
+    readchar.key.LF: "LF",
+    readchar.key.CTRL_A: "CTRL_A",
+    readchar.key.CTRL_W: "CTRL_W",
+    readchar.key.CTRL_P: "CTRL_P",
+}
 
 
 class UI:
@@ -132,8 +160,12 @@ class UI:
             the handler call.
         """
         if self.need_run_handler:
+            debugger.log("need to run handler")
             if items is None:
+                debugger.log("run handler")
                 items = self.handler(self.line_editor.line, self)
+            else:
+                debugger.log("explicitly give items, skip handler")
             self.dropdown.update(items)
 
             # the current terminal height may not be able to fit all items
@@ -157,16 +189,9 @@ class UI:
                 "Terminal width is too small to render the UI! "
                 "It has to have at least 80 ascii character wide."
             )
+        debugger.log("render dropdown")
         n_items_on_screen = self.render.print_dropdown(self.dropdown, terminal_width)
         self.n_items_on_screen = n_items_on_screen
-
-        debugger.log(f"move_cursor_to_line_editor ...")
-        debugger.log(f"_line_number: {self.render._line_number}")
-        n_vertical, n_horizontal = self.render.move_cursor_to_line_editor(
-            self.line_editor
-        )
-        debugger.log(f"n_vertical: {n_vertical}")
-        debugger.log(f"n_horizontal: {n_horizontal}")
 
     def print_items(self, items: T.Optional[T.List[T_ITEM]] = None):
         """
@@ -179,6 +204,13 @@ class UI:
             if self.need_print_items:
                 self._print_items(items=items)
         finally:
+            debugger.log(f"move_cursor_to_line_editor ...")
+            debugger.log(f"_line_number: {self.render._line_number}")
+            n_vertical, n_horizontal = self.render.move_cursor_to_line_editor(
+                self.line_editor
+            )
+            debugger.log(f"n_vertical: {n_vertical}")
+            debugger.log(f"n_horizontal: {n_horizontal}")
             self.need_print_items = True
             self.need_run_handler = True
 
@@ -211,7 +243,8 @@ class UI:
         - CTRL + W:
         - CTRL + P:
         """
-        debugger.log(f"pressed: {[pressed]} {[readchar.key.CTRL_J]}")
+        pressed_key_name = key_to_name.get(pressed, pressed)
+        debugger.log(f"pressed: {pressed_key_name}")
 
         if pressed == readchar.key.CTRL_C:
             raise KeyboardInterrupt()

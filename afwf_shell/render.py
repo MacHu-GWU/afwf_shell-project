@@ -253,7 +253,7 @@ class UIRender(Render):
         Render the entire UI, and move the cursor to the right position.
         """
         self.print_line_editor(line_editor)
-        n_items = self.print_dropdown(dropdown)
+        n_items = self.print_dropdown(dropdown, line_width=self.terminal.width)
         self.move_cursor_to_line_editor(line_editor)
         return n_items
 

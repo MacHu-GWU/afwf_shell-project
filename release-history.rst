@@ -23,6 +23,10 @@ x.y.z (Backlog)
 - Now the UI can automatically determine the max item to show and automatically truncate the title / subtitle based on terminal window size.
 - Add support to capture and show error message in the UI.
 
+**Miscellaneous**
+
+- Now debugger can show what key is pressed.
+
 
 0.0.2 (2023-10-05)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -30,6 +34,10 @@ x.y.z (Backlog)
 
 - Rework the code base, add ``LineEdit`` and ``Dropdown`` module to manage the keyboard event handling logics.
 - Now user can use keyboard to move cursor to left, right, up, down and be able to scroll the dropdown list.
+
+**Miscellaneous**
+
+- Add debugger.
 
 
 0.0.1 (2023-10-04)
