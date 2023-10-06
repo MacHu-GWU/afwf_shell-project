@@ -2,14 +2,13 @@
 
 import dataclasses
 from fuzzywuzzy import process
-from afwf_shell.item import Item
-from afwf_shell.ui import UI, debugger
+import afwf_shell.api as afwf_shell
 
 
 @dataclasses.dataclass
-class MyItem(Item):
+class Item(afwf_shell.Item):
     def enter_handler(self):
-        print(f"enter: {self.title}")
+        raise ValueError("error in Item.enter_handler()")
 
     def ctrl_a_handler(self):
         print(f"ctrl_a: {self.title}")
@@ -44,7 +43,7 @@ def get_items():
         "Namespaces are one honking great idea -- let's do more of those!",
     ]
     items = [
-        MyItem(
+        Item(
             uid=f"id-{str(ith).zfill(2)}",
             title=zen,
             subtitle=f"subtitle {str(ith).zfill(2)}",
@@ -56,7 +55,7 @@ def get_items():
     return items
 
 
-def handler(query: str):
+def handler(query: str, ui: afwf_shell.UI):
     items = get_items()
     if query:
         if len(query) >= 3:
@@ -70,7 +69,7 @@ def handler(query: str):
         return items
 
 
-debugger.reset()
-debugger.enable()
-ui = UI(handler=handler)
+afwf_shell.debugger.reset()
+afwf_shell.debugger.enable()
+ui = afwf_shell.UI(handler=handler)
 ui.run()

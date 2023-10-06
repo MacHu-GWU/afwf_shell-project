@@ -1,23 +1,19 @@
 # -*- coding: utf-8 -*-
 
+import typing as T
+import time
 import dataclasses
+from pathlib import Path
 from fuzzywuzzy import process
 import afwf_shell.api as afwf_shell
 
 
 @dataclasses.dataclass
 class Item(afwf_shell.Item):
-    def enter_handler(self):
-        print(f"enter: {self.title}")
+    pass
 
-    def ctrl_a_handler(self):
-        print(f"ctrl_a: {self.title}")
 
-    def ctrl_w_handler(self):
-        print(f"ctrl_w: {self.title}")
-
-    def ctrl_p_handler(self):
-        print(f"ctrl_p: {self.title}")
+path = Path(__file__).parent / "first_run_waiter_example_tracker.txt"
 
 
 def get_items():
@@ -46,7 +42,7 @@ def get_items():
         Item(
             uid=f"id-{str(ith).zfill(2)}",
             title=zen,
-            subtitle=f"subtitle {str(ith).zfill(2)}: https://www.google.com",
+            subtitle=f"subtitle {str(ith).zfill(2)}",
             autocomplete=zen,
             arg=zen,
         )
@@ -55,7 +51,7 @@ def get_items():
     return items
 
 
-def handler(query: str, ui: afwf_shell.UI):
+def search(query: str) -> T.List[Item]:
     items = get_items()
     if query:
         mapper = {item.title: item for item in items}
@@ -66,6 +62,28 @@ def handler(query: str, ui: afwf_shell.UI):
         return items
 
 
+def handler(query: str, ui: afwf_shell.UI):
+    if path.exists():
+        return search(query)
+    else:
+        items = [
+            Item(
+                uid="uid",
+                title="Creating index ...",
+                subtitle="please wait, don't press any key.",
+            )
+        ]
+        ui.print_items(items=items)
+        time.sleep(3)
+        path.write_text("done")
+        ui.move_to_end()
+        ui.clear_items()
+        ui.clear_query()
+        ui.print_query()
+        return search(query)
+
+
+path.unlink(missing_ok=True)
 afwf_shell.debugger.reset()
 afwf_shell.debugger.enable()
 ui = afwf_shell.UI(handler=handler)
