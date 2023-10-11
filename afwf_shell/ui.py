@@ -340,21 +340,22 @@ class UI:
                 )
             else:
                 self.move_to_end()
-                selected_item = self.dropdown.selected_item
-                if pressed in (
-                    readchar.key.ENTER,
-                    readchar.key.CR,
-                    readchar.key.LF,
-                ):
-                    selected_item.enter_handler()
-                elif pressed == readchar.key.CTRL_A:
-                    selected_item.ctrl_a_handler()
-                elif pressed == readchar.key.CTRL_W:
-                    selected_item.ctrl_w_handler()
-                elif pressed == readchar.key.CTRL_P:
-                    selected_item.ctrl_p_handler()
-                else:  # pragma: no cover
-                    raise NotImplementedError
+                if len(self.dropdown.items):
+                    selected_item = self.dropdown.selected_item
+                    if pressed in (
+                        readchar.key.ENTER,
+                        readchar.key.CR,
+                        readchar.key.LF,
+                    ):
+                        selected_item.enter_handler()
+                    elif pressed == readchar.key.CTRL_A:
+                        selected_item.ctrl_a_handler()
+                    elif pressed == readchar.key.CTRL_W:
+                        selected_item.ctrl_w_handler()
+                    elif pressed == readchar.key.CTRL_P:
+                        selected_item.ctrl_p_handler()
+                    else:  # pragma: no cover
+                        raise NotImplementedError
                 raise exc.EndOfInputError(selection=selected_item)
 
         self.line_editor.press_key(pressed)
@@ -411,23 +412,35 @@ class UI:
                 self.clear_items()
                 self.clear_query()
                 self.print_query()
-                selected_item = self.dropdown.selected_item
-                title = selected_item.title
-                if title.startswith("Error on item: "):
-                    title = title[len("Error on item: ") :]
-                processed_title = self.render._process_title(
-                    title,
-                    self.render.terminal.width - 15,
-                )
-                self.print_items(
-                    items=[
-                        Item(
-                            uid="uid",
-                            title=f"Error on item: {processed_title}",
-                            subtitle=f"{e!r}",
-                        )
-                    ]
-                )
+                if len(self.dropdown.items):
+                    selected_item = self.dropdown.selected_item
+                    title = selected_item.title
+                    if title.startswith("Error on item: "):
+                        title = title[len("Error on item: ") :]
+                    processed_title = self.render._process_title(
+                        title,
+                        self.render.terminal.width - 15,
+                    )
+                    self.print_items(
+                        items=[
+                            Item(
+                                uid="uid",
+                                title=f"Error on item: {processed_title}",
+                                subtitle=f"{e!r}",
+                            )
+                        ]
+                    )
+                else:
+                    self.print_items(
+                        items=[
+                            Item(
+                                uid="uid",
+                                title=f"Error!",
+                                subtitle=f"{e!r}",
+                            )
+                        ]
+                    )
+
                 self.process_input()
                 self.move_to_end()
                 return self.event_loop()

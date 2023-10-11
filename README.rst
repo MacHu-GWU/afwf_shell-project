@@ -59,7 +59,8 @@ Demo:
 Examples:
 
 - `ui_example.py <https://github.com/MacHu-GWU/afwf_shell-project/blob/main/examples/ui_example.py>`_
-- `error_handling_example <https://github.com/MacHu-GWU/afwf_shell-project/blob/main/examples/error_handling_example.py>`_
+- `error_handling_example_1 <https://github.com/MacHu-GWU/afwf_shell-project/blob/main/examples/error_handling_example_1.py>`_
+- `error_handling_example_2 <https://github.com/MacHu-GWU/afwf_shell-project/blob/main/examples/error_handling_example_2.py>`_
 - `first_run_waiter_example.py <https://github.com/MacHu-GWU/afwf_shell-project/blob/main/examples/first_run_waiter_example.py>`_
 
 
