@@ -15,6 +15,13 @@ x.y.z (Backlog)
 **Miscellaneous**
 
 
+0.0.5 (2023-10-11)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Bugfixes**
+
+- Fix a bug that the UI should not read the selected item when there's no item in the dropdown menu.
+
+
 0.0.4 (2023-10-06)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Bugfixes**
