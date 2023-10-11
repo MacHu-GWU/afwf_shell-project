@@ -15,6 +15,17 @@ x.y.z (Backlog)
 **Miscellaneous**
 
 
+0.0.6 (2023-10-11)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Minor Improvements**
+
+- Hit enter on error item can open the debug log automatically.
+
+**Bugfixes**
+
+- Fix another bug that the UI should not read the selected item when there's no item in the dropdown menu.
+
+
 0.0.5 (2023-10-11)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Bugfixes**

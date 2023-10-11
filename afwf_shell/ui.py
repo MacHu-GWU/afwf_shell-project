@@ -5,9 +5,12 @@ Alfred Workflow UI simulator.
 """
 
 import typing as T
+import subprocess
+import dataclasses
 
 import readchar
 
+from .vendor.os_platform import IS_WINDOWS
 from . import exc
 from . import events
 from .item import T_ITEM, Item
@@ -44,6 +47,17 @@ key_to_name = {
     readchar.key.CTRL_W: "CTRL_W",
     readchar.key.CTRL_P: "CTRL_P",
 }
+
+if IS_WINDOWS:
+    OPEN_CMD = "start"
+else:
+    OPEN_CMD = "open"
+
+
+@dataclasses.dataclass
+class DebugItem(Item):
+    def enter_handler(self):
+        subprocess.run([OPEN_CMD, str(debugger.path_log_txt)])
 
 
 class UI:
@@ -300,7 +314,7 @@ class UI:
             readchar.key.RIGHT,
             readchar.key.HOME,
             readchar.key.END,
-            readchar.key.CTRL_H, # note, CTRL+H won't work on Windows
+            readchar.key.CTRL_H,  # note, CTRL+H won't work on Windows
             readchar.key.CTRL_L,
             readchar.key.CTRL_G,
             readchar.key.CTRL_K,
@@ -340,7 +354,7 @@ class UI:
                 )
             else:
                 self.move_to_end()
-                if len(self.dropdown.items):
+                if self.dropdown.items:
                     selected_item = self.dropdown.selected_item
                     if pressed in (
                         readchar.key.ENTER,
@@ -412,7 +426,8 @@ class UI:
                 self.clear_items()
                 self.clear_query()
                 self.print_query()
-                if len(self.dropdown.items):
+                # display error message
+                if self.dropdown.items:
                     selected_item = self.dropdown.selected_item
                     title = selected_item.title
                     if title.startswith("Error on item: "):
@@ -423,7 +438,7 @@ class UI:
                     )
                     self.print_items(
                         items=[
-                            Item(
+                            DebugItem(
                                 uid="uid",
                                 title=f"Error on item: {processed_title}",
                                 subtitle=f"{e!r}",
@@ -433,14 +448,13 @@ class UI:
                 else:
                     self.print_items(
                         items=[
-                            Item(
+                            DebugItem(
                                 uid="uid",
-                                title=f"Error!",
+                                title=f"Error on item: NA",
                                 subtitle=f"{e!r}",
                             )
                         ]
                     )
-
                 self.process_input()
                 self.move_to_end()
                 return self.event_loop()
