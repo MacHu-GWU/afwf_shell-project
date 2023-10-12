@@ -3,6 +3,9 @@
 import typing as T
 import dataclasses
 
+if T.TYPE_CHECKING:
+    from .ui import UI
+
 
 @dataclasses.dataclass
 class Item:
@@ -33,27 +36,35 @@ class Item:
     def subtitle_text(self) -> str:  # pragma: no cover
         return self.subtitle or ""
 
-    def enter_handler(self):  # pragma: no cover
+    def enter_handler(self, ui: "UI"):  # pragma: no cover
         """
         This is the abstract method that when you hit Enter on this item.
+
+        :param ui: the :class:`~afwf_shell.ui.UI` object.
         """
         pass
 
-    def ctrl_a_handler(self):  # pragma: no cover
+    def ctrl_a_handler(self, ui: "UI"):  # pragma: no cover
         """
         This is the abstract method that when you hit Ctrl + A on this item.
+
+        :param ui: the :class:`~afwf_shell.ui.UI` object.
         """
         pass
 
-    def ctrl_w_handler(self):  # pragma: no cover
+    def ctrl_w_handler(self, ui: "UI"):  # pragma: no cover
         """
         This is the abstract method that when you hit Ctrl + W on this item.
+
+        :param ui: the :class:`~afwf_shell.ui.UI` object.
         """
         pass
 
-    def ctrl_p_handler(self):  # pragma: no cover
+    def ctrl_p_handler(self, ui: "UI"):  # pragma: no cover
         """
         This is the abstract method that when you hit Ctrl + P on this item.
+
+        :param ui: the :class:`~afwf_shell.ui.UI` object.
         """
         pass
 

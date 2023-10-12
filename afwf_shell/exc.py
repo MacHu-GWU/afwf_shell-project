@@ -17,3 +17,7 @@ class EndOfInputError(Exception):
 
 class TerminalTooSmallError(SystemError):
     pass
+
+
+class NoItemToSelectError(IndexError):
+    pass

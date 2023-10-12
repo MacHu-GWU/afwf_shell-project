@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
+import pytest
 
 from afwf_shell.dropdown import Dropdown
+from afwf_shell.exc import NoItemToSelectError
 
 
 def get_items(menu) -> str:
@@ -174,17 +176,38 @@ def _test_press_up_and_down():
     dd._press_up()
     assert dd.selected_item_index == 0
     assert dd.cursor_position == 0
+    assert dd.selected_item == "a"
 
     dd.press_down(3)
     dd._press_down()
     assert dd.selected_item_index == 2
     assert dd.cursor_position == 2
+    assert dd.selected_item == "c"
+
+
+def _test_update():
+    dd = Dropdown(items=list("abc"))
+    dd._press_down()
+    dd.update(items=list("mn"))
+    assert dd.items == list("mn")
+    assert dd.n_items == 2
+    assert dd.selected_item_index == 0
+    assert dd.cursor_position == 0
+    assert dd._show_items_limit == 2
+
+
+def _test_selected_item():
+    dd = Dropdown(items=[])
+    with pytest.raises(NoItemToSelectError):
+        _ = dd.selected_item
 
 
 def test():
     _test_high_amount_of_items()
     _test_low_amount_of_items()
     _test_press_up_and_down()
+    _test_update()
+    _test_selected_item()
 
 
 if __name__ == "__main__":

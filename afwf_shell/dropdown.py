@@ -8,6 +8,7 @@ import typing as T
 
 from .constants import SHOW_ITEMS_LIMIT, SCROLL_SPEED
 from .item import T_ITEM
+from .exc import NoItemToSelectError
 
 
 class Dropdown:
@@ -40,7 +41,10 @@ class Dropdown:
 
     @property
     def selected_item(self) -> T_ITEM:
-        return self.items[self.selected_item_index]
+        try:
+            return self.items[self.selected_item_index]
+        except IndexError:
+            raise NoItemToSelectError
 
     def _press_down(self):
         # already the last item

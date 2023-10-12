@@ -15,6 +15,18 @@ x.y.z (Backlog)
 **Miscellaneous**
 
 
+0.0.7 (2023-10-12)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Features and Improvements**
+
+- Add a query parser to parse the handler input string into a structured query.
+
+**Minor Improvements**
+
+- The enter_handler, ctrl_a_handler, ctrl_w_handler, ctrl_p_handler will take an optional UI object as an argument.
+- Bring ``T_ITEM`` and ``T_HANDLER`` type hint to the public API.
+
+
 0.0.6 (2023-10-11)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Minor Improvements**

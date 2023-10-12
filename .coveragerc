@@ -11,6 +11,8 @@ omit =
     afwf_shell/render.py
     afwf_shell/ui.py
     afwf_shell/debug.py
+    afwf_shell/events.py
+    afwf_shell/exc.py
 
 [report]
 # Regexes for lines to exclude from consideration

@@ -56,8 +56,11 @@ else:
 
 @dataclasses.dataclass
 class DebugItem(Item):
-    def enter_handler(self):
+    def enter_handler(self, ui: "UI"):
         subprocess.run([OPEN_CMD, str(debugger.path_log_txt)])
+
+
+T_HANDLER = T.Callable[[str, T.Optional["UI"]], T.List[T_ITEM]]
 
 
 class UI:
@@ -70,7 +73,7 @@ class UI:
 
     def __init__(
         self,
-        handler: T.Callable[[str, T.Optional["UI"]], T.List[T_ITEM]],
+        handler: T_HANDLER,
         capture_error: bool = True,
     ):
         self.handler: T.Callable[[str, T.Optional["UI"]], T.List[T_ITEM]] = handler
@@ -152,7 +155,7 @@ class UI:
 
     def print_query(self):
         """
-        A wrapper of the core logic for printint query, ensures that the
+        A wrapper of the core logic for printing query, ensures that the
         ``need_print_query`` flag is set to ``True`` at the end regardless of
         whether an exception is raised.
         """
@@ -361,13 +364,13 @@ class UI:
                         readchar.key.CR,
                         readchar.key.LF,
                     ):
-                        selected_item.enter_handler()
+                        selected_item.enter_handler(ui=self)
                     elif pressed == readchar.key.CTRL_A:
-                        selected_item.ctrl_a_handler()
+                        selected_item.ctrl_a_handler(ui=self)
                     elif pressed == readchar.key.CTRL_W:
-                        selected_item.ctrl_w_handler()
+                        selected_item.ctrl_w_handler(ui=self)
                     elif pressed == readchar.key.CTRL_P:
-                        selected_item.ctrl_p_handler()
+                        selected_item.ctrl_p_handler(ui=self)
                     else:  # pragma: no cover
                         raise NotImplementedError
                 raise exc.EndOfInputError(selection=selected_item)

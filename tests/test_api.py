@@ -6,7 +6,11 @@ from afwf_shell import api
 def test():
     _ = api
     _ = api.Item
+    _ = api.T_ITEM
+    _ = api.Query
+    _ = api.QueryParser
     _ = api.UI
+    _ = api.T_HANDLER
     _ = api.debugger
     _ = api.exc
 
